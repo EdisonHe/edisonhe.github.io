@@ -24,7 +24,7 @@ Created by Edison on 15-8-28.
 <html>
 <head>
 <meta charset="utf-8">
-<title>hello,world</title>
+<title>hello, world!</title>
   <style>
         body{
             background-color: black;
@@ -40,45 +40,41 @@ Created by Edison on 15-8-28.
   </style>
 </head>
 <body>
-        <pre id="two" style="display:none">
+        <pre id="two" style="display:none"> 
 login as: root
 root@8.8.8.8's password:                
 [root@localhost ~]# cd /
 [root@localhost /]# ls
 bin  boot  dev  etc  home  lib  lost+found  media  mnt  opt  proc  root  sbin  selinux  srv  sys  tmp  usr  var
-[root@localhost /]# cat /tmp/about
+[root@localhost /]# cat /tmp/file.txt
 “如果我不再为第一场雪欢呼了，那我一定是老了。”
             ——伯德· 约翰逊（Lady Bird Johnson）
 [root@localhost /]# 等待你的输入...
         </pre>
         <h1><pre  id="one"></pre></h1>
+
+
       <script>
-         var prints = function ( target,str ,speed){
+          var prints = function (target, str, speed) {
             var timer = null;
             var count = 0;
-            timer = setInterval(function(){
-
-              if( count >= str.length ){
-
+            timer = setInterval(function() {
+              if( count >= str.length ) {
                  clearInterval(timer);
-
-                  }else{
+                } else {
                     target.innerHTML = str.substring( 0,count );
                     count++;
-                      }
-              },speed)
-         };
+                }
+            }, speed);
+          };
 
-         var  oDiv = document.getElementById("one");
-         var  oDiv2 = document.getElementById('two');
+          var  oDiv = document.getElementById("one");
+          var  oDiv2 = document.getElementById('two');
+          var str  = oDiv2.innerHTML;
 
-         var str  = oDiv2.innerHTML;
-
-        setTimeout(function(){
-
-            prints( oDiv ,str, 100 );
-
-           },100);
+          setTimeout(function(){
+              prints( oDiv ,str, 100 );
+          },100);
       </script>
 </body>
 </html>

@@ -26,23 +26,27 @@ Created by Edison on 15-8-28.
 <meta charset="utf-8">
 <title>hello, world!</title>
   <style>
+        * {
+          padding: 0px;
+          margin: 0px;
+        }
         body{
-        		margin: 0 auto;
             background-color: black;
         }
-        #two{ width:400px; height:300px; border:1px solid red;padding:0px;}
-        #two{ border:0px solid #339; }
+        #two{ width:400px; height:300px; border:1px solid red;padding:10px;}
+        #two{ border:1px solid #339; }
         #one{
-            background-color: black;
+            /*background-color: black;*/
             color:lime;
             width: 700px;
         }
   </style>
 </head>
 <body>
-        <pre id="two" style="display:none"> 
-login as: root
-root@8.8.8.8's password:                
+        <pre id="two" style="display:none">
+host login:edison
+Password:**************
+login ok             
 [root@localhost ~]# cd /
 [root@localhost /]# ls
 bin  boot  dev  etc  home  lib  lost+found  media  mnt  opt  proc  root  sbin  selinux  srv  sys  tmp  usr  var
@@ -50,9 +54,12 @@ bin  boot  dev  etc  home  lib  lost+found  media  mnt  opt  proc  root  sbin  s
 “如果我不再为第一场雪欢呼了，那我一定是老了。”
             ——伯德· 约翰逊（Lady Bird Johnson）
 [root@localhost /]# 等待你的输入...
+[root@host ~]#
         </pre>
         <h1><pre  id="one"></pre></h1>
-      <script>
+
+
+       <script>
           var prints = function (target, str, speed) {
             var timer = null;
             var count = 0;

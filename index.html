@@ -1,13 +1,65 @@
 <!doctype html>
+<html>
 <head>
-    <link href="./css/style.css" />
+<meta charset="utf-8">
+<title>无标题文档</title>
+  <style>
+        body{
+            background-color: black;
+        }
+        #two{ width:400px; height:300px; border:1px solid red;padding:10px;}
+        #two{ border:1px solid #339; }
+        #one{
+            background-color: black;
+            color:lime;
+            width: 700px;
+        }
+  </style>
+
 </head>
+
 <body>
-    <h1>hello,github</h1>
-    <h2>by:顾惜朝</h2>
-    <script>
-        alert(7357);
-    </script>
+        <pre id="two" style="display:none">
+login as: root
+root@8.8.8.8's password:                
+[root@localhost ~]# cd /
+[root@localhost /]# ls
+bin  boot  dev  etc  home  lib  lost+found  media  mnt  opt  proc  root  sbin  selinux  srv  sys  tmp  usr  var
+[root@localhost /]# cat /tmp/file.txt
+“如果我不再为第一场雪欢呼了，那我一定是老了。”
+            ——伯德· 约翰逊（Lady Bird Johnson）
+[root@localhost /]#
+        </pre>
+        <h1><pre  id="one"></pre></h1>
+
+
+      <script>
+         var prints = function ( target,str ,speed){
+            var timer = null;
+            var count = 0;
+            timer = setInterval(function(){
+
+              if( count >= str.length ){
+
+                 clearInterval(timer);
+
+                  }else{
+                    target.innerHTML = str.substring( 0,count );
+                    count++;
+                      }
+              },speed)
+         };
+
+         var  oDiv = document.getElementById("one");
+         var  oDiv2 = document.getElementById('two');
+
+         var str  = oDiv2.innerHTML;
+
+        setTimeout(function(){
+
+            prints( oDiv ,str, 100 );
+
+           },100);
+      </script>
 </body>
 </html>
-

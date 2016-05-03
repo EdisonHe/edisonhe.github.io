@@ -1,1 +1,1 @@
-alert("document.damian")
+alert("document.domian")

